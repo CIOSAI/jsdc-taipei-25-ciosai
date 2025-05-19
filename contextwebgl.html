@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<head>
+<title>jsdc 25 - webGL - webGL</title>
+<script>
+window.onload = () => {
+let canvas = document.getElementById('canvas');
+
+let ctx = canvas.getContext('webgl', { premultipliedAlpha: false });
+
+let program: WebGLProgram;
+
+      let vert = gl.createShader(gl.VERTEX_SHADER);
+      gl.shaderSource(vert, document.getElementById('vertex').innerHTML);
+      gl.compileShader(vert);
+      let frag = gl.createShader(gl.FRAGMENT_SHADER);
+      gl.shaderSource(frag, document.getElementById('fragment').innerHTML);
+      gl.compileShader(frag);
+
+      program = gl.createProgram();
+      gl.attachShader(program, vert);
+      gl.attachShader(program, frag);
+      gl.linkProgram(program);
+
+      let buffer = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+        1.0, 1.0, -1.0, 1.0, 1.0, -1.0, -1.0, -1.0
+      ]), gl.STATIC_DRAW);
+
+      gl.vertexAttribPointer(gl.getAttribLocation(program, "aVertexPosition"),
+        2, gl.FLOAT, false, 0, 0);
+      gl.enableVertexAttribArray(gl.getAttribLocation(program, "aVertexPosition"));
+
+      gl.useProgram(program);
+
+        gl.uniform1fv(gl.getUniformLocation(program, "u_time"), new Float32Array([(time-time_at_start)/1000]))
+        gl.uniform2fv(gl.getUniformLocation(program, "u_res"), new Float32Array([dim[0], dim[1]]));
+
+        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+}
+</script>
+</head>
+<body>
+<canvas id='canvas' width=800 height=600></canvas>
+<pre id='vertex'>
+attribute vec4 aVertexPosition;
+void main() {
+    gl_Position = aVertexPosition;
+}
+</pre>
+<pre id='fragment'>
+
+precision mediump float;
+
+uniform vec2 u_res;
+uniform float u_time;
+
+#define rot(n) mat2(cos(n),-sin(n),sin(n),cos(n))
+
+float box(vec3 p) {
+vec3 q = abs(p);
+return max(max(q.x,q.y), q.z);
+}
+
+void main() {
+    vec2 uv = gl_FragCoord.xy/u_res;
+    uv -= 0.5;
+    uv.x *= u_res.x/u_res.y;
+
+    vec3 c = sin(vec3(0,1,2)+length(uv)*36.+u_time*4.)*0.5+0.5;
+
+    float v=0.0;
+    float td,ld;
+    vec3 rd=normalize(vec3(uv,1.0)),
+         ro=vec3(0),
+         po=-ro;
+    for(int i=1; i<32; i++){
+      po = ro+rd*td;
+
+      po.z -= 4.0;
+
+      po.xz *= rot(u_time*2.+po.y*0.9);
+      po.zy *= rot(u_time*3.+po.x*1.3);
+
+      ld = max(0.015, box(po)-0.5);
+      td += ld;
+
+      if (td>999.) {
+        break;
+      }
+
+      v += exp(1.-ld*16.0)/float(i);
+    }
+
+    gl_FragColor = vec4(pow(c,vec3(.454545)),(1.0-smoothstep(0.95,1.0,v))*v*0.3);
+}
+</pre>
+</body>
+

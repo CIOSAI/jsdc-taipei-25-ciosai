@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<head>
+<title>jsdc 25 - webGL - pseudo 3d</title>
+<script>
+document.onpointermove = () => {
+let canvas = document.getElementById('canvas');
+
+// get drawing context (think of this like grabbing paint and brush)
+let ctx = canvas.getContext('2d');
+
+let points = [[1,1,0], [0,1,0], [1,0,0]];
+
+function rotateY(point, angle) {
+  let a = 3.1415926*2*angle/360;
+  return [Math.cos(a)*point[0]-Math.sin(a)*point[2], point[1], 
+          Math.sin(a)*point[0]+Math.cos(a)*point[2]];
+}
+
+let away = 2;
+let proj = points.map(
+  p=>rotateY(p,(new Date()).getTime())
+).map(
+  p=>[p[0],p[1],p[2] + away]
+).map(
+  p=>[200*p[0]/p[2], 200*p[1]/p[2]]
+);
+
+// clear background
+ctx.beginPath();
+ctx.fillStyle = '#ffffff';
+ctx.fillRect(0,0,800,600);
+
+// defining the triangle
+ctx.beginPath();
+ctx.moveTo(proj[0][0],proj[0][1]);
+ctx.lineTo(proj[1][0],proj[1][1]);
+ctx.lineTo(proj[2][0],proj[2][1]);
+ctx.lineTo(proj[0][0],proj[0][1]);
+
+// putting it on the screen
+ctx.fillStyle = '#ff0000';
+ctx.fill();
+}
+</script>
+</head>
+<body>
+<canvas id='canvas' width=800 height=600></canvas>
+</body>
+

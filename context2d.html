@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<head>
+<title>jsdc 25 - webGL - canvas 2d</title>
+<script>
+window.onload = () => {
+let canvas = document.getElementById('canvas');
+
+// get drawing context (think of this like grabbing paint and brush)
+let ctx = canvas.getContext('2d');
+
+// defining the triangle
+ctx.beginPath();
+ctx.moveTo(0,0);
+ctx.lineTo(100,0);
+ctx.lineTo(0,100);
+ctx.lineTo(0,0);
+
+// putting it on the screen
+ctx.fillStyle = '#ff0000';
+ctx.fill();
+}
+</script>
+</head>
+<body>
+<canvas id='canvas' width=800 height=600></canvas>
+</body>
+
