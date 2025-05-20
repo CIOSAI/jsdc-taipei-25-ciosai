@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<head>
+<title>jsdc 25 - webGL - just vertex</title>
+<script>
+window.onload = () => {
+let canvas = document.getElementById('canvas');
+
+let gl = canvas.getContext('webgl', { premultipliedAlpha: false });
+
+// a shader program, instructions for the GPU
+let program;
+
+// the GLSL code telling GPU what to do for vertices
+let vert = gl.createShader(gl.VERTEX_SHADER);
+gl.shaderSource(vert, document.getElementById('vertex').value);
+gl.compileShader(vert);
+// and what to do for pixels
+let frag = gl.createShader(gl.FRAGMENT_SHADER);
+gl.shaderSource(frag, document.getElementById('fragment').value);
+gl.compileShader(frag);
+
+// generate the actualy program
+program = gl.createProgram();
+gl.attachShader(program, vert);
+gl.attachShader(program, frag);
+gl.linkProgram(program);
+
+// creating vertices in js
+let vertices = [];
+for (let i=-2; i<32; i++) {
+  if (i<0) {
+    vertices.push([[-1,0.1,0][-1,-0.1,0]][i+2]); // place the first 2 vertices on the left, one higher one lower
+  }
+  else {
+    let amplitude = i%2==0?0.1:-0.1; // zigzagging
+    let x = -1+2*(1+i)/32; // linearly interpolating from -1 to 1
+    vertices.push([x, Math.sin(i*0.3)*amplitude, Math.cos(i*0.3)*amplitude]); // making a helix spiral shape 
+  }
+}
+
+// create a buffer to pass vertices from js to webgl
+let buffer = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices.flat()), gl.STATIC_DRAW);
+
+// binds current buffer(that one above) to a vertex attribute(here we chose aVertexPosition)
+// it is a 3d position and takes 3 floats per point
+gl.vertexAttribPointer(gl.getAttribLocation(program, "aVertexPosition"),
+  3, gl.FLOAT, false, 0, 0);
+// mutation to this buffer is off by default, this turns it on for "aVertexPosition" and let us edit it
+gl.enableVertexAttribArray(gl.getAttribLocation(program, "aVertexPosition"));
+
+// set it as our main program 
+gl.useProgram(program);
+
+// actually executing the program and fill the screen
+gl.drawArrays(gl.TRIANGLE_STRIP, 0, vertices.length-2);
+}
+</script>
+</head>
+<body>
+<canvas id='canvas' width=800 height=600></canvas>
+<textarea id='vertex'>
+attribute vec4 aVertexPosition;
+void main() {
+    gl_Position = aVertexPosition.zyxw;
+}
+</textarea>
+<textarea id='fragment'>
+precision mediump float;
+
+void main() {
+    gl_FragColor = vec4(1, 0, 0, 1);
+}
+</textarea>
+</body>
+

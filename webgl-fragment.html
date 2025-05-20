@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<head>
+<title>jsdc 25 - webGL - just fragment</title>
+<script>
+window.onload = () => {
+let canvas = document.getElementById('canvas');
+
+let gl = canvas.getContext('webgl', { premultipliedAlpha: false });
+
+// a shader program, instructions for the GPU
+let program;
+
+// the GLSL code telling GPU what to do for vertices
+let vert = gl.createShader(gl.VERTEX_SHADER);
+gl.shaderSource(vert, document.getElementById('vertex').value);
+gl.compileShader(vert);
+// and what to do for pixels
+let frag = gl.createShader(gl.FRAGMENT_SHADER);
+gl.shaderSource(frag, document.getElementById('fragment').value);
+gl.compileShader(frag);
+
+// generate the actualy program
+program = gl.createProgram();
+gl.attachShader(program, vert);
+gl.attachShader(program, frag);
+gl.linkProgram(program);
+
+// create a buffer to pass vertices from js to webgl
+let buffer = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+  1.0, 1.0, -1.0, 1.0, 1.0, -1.0, -1.0, -1.0
+]), gl.STATIC_DRAW);
+
+// i actually forgot what this does lol
+gl.vertexAttribPointer(gl.getAttribLocation(program, "aVertexPosition"),
+  2, gl.FLOAT, false, 0, 0);
+gl.enableVertexAttribArray(gl.getAttribLocation(program, "aVertexPosition"));
+
+// set it as our main program 
+gl.useProgram(program);
+
+// input variables from outside
+gl.uniform2fv(gl.getUniformLocation(program, "u_res"), new Float32Array([800,600]));
+
+// actually executing the program and fill the screen
+gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+}
+</script>
+</head>
+<body>
+<canvas id='canvas' width=800 height=600></canvas>
+<textarea id='vertex'>
+attribute vec4 aVertexPosition;
+void main() {
+    gl_Position = aVertexPosition;
+}
+</textarea>
+<textarea id='fragment'>
+
+precision mediump float;
+
+uniform vec2 u_res;
+
+void main() {
+    vec2 uv = gl_FragCoord.xy/u_res;
+
+    gl_FragColor = vec4(uv.x, uv.y, 0, 1);
+}
+</textarea>
+</body>
+
