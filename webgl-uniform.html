@@ -30,6 +30,8 @@ gl.enableVertexAttribArray(gl.getAttribLocation(program, "aVertexPosition"));
 
 gl.useProgram(program);
 
+gl.uniform2fv(gl.getUniformLocation(program, "u_res"), new Float32Array([800,600]));
+
 gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 }
 </script>
@@ -45,8 +47,17 @@ void main() {
 <textarea id='fragment'>
 precision mediump float;
 
+// image resolution
+uniform vec2 u_res;
+
 void main() {
-    gl_FragColor = vec4(gl_FragCoord.x<200.0?0:1, 0, 0, 1);
+    // pixel coordinate/resolution =>
+    // left most pixel is 0, right most pixel is 1. same with bottom and top
+    vec2 uv = gl_FragCoord.xy/u_res;
+
+    // the color of this pixel is 
+    //                  red, green, blue, alpha
+    gl_FragColor = vec4(uv.x, uv.y, 0, 1);
 }
 </textarea>
 </body>

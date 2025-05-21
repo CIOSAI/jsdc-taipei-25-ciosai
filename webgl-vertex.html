@@ -7,9 +7,6 @@ let canvas = document.getElementById('canvas');
 
 let gl = canvas.getContext('webgl', { premultipliedAlpha: false });
 
-// a shader program, instructions for the GPU
-let program;
-
 // the GLSL code telling GPU what to do for vertices
 let vert = gl.createShader(gl.VERTEX_SHADER);
 gl.shaderSource(vert, document.getElementById('vertex').value);
@@ -19,8 +16,8 @@ let frag = gl.createShader(gl.FRAGMENT_SHADER);
 gl.shaderSource(frag, document.getElementById('fragment').value);
 gl.compileShader(frag);
 
-// generate the actualy program
-program = gl.createProgram();
+// a shader program, instructions for the GPU
+let program = gl.createProgram();
 gl.attachShader(program, vert);
 gl.attachShader(program, frag);
 gl.linkProgram(program);
@@ -39,8 +36,7 @@ for (let i=-2; i<32; i++) {
 }
 
 // create a buffer to pass vertices from js to webgl
-let buffer = gl.createBuffer();
-gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
 gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices.flat()), gl.STATIC_DRAW);
 
 // binds current buffer(that one above) to a vertex attribute(here we chose aVertexPosition)

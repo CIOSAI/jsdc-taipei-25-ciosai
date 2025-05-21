@@ -13,3 +13,7 @@ _pssst, you are recommended to read them in order, i don't comment a previously 
 `webgl-vertex.html` introduction to the webgl drawing context and finally run through the pipeline ourselves the first time
 
 `webgl-fragment.html` showcase how fragment shader works
+
+`webgl-uniform.html` showcase how to send data to shader
+
+`demo.html` is showing off what can be done with webgl
